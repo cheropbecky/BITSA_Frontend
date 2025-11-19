@@ -2,22 +2,22 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import heroPicture from "../assets/hero_bitsa.jpg";
+import api from "../api/api";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("All");
-  const [registering, setRegistering] = useState({}); // Track registration per event
+  const [registering, setRegistering] = useState({});
+  const [userRegistrations, setUserRegistrations] = useState([]);
 
   // Fetch events
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://localhost:5500/api/events");
-        if (!res.ok) throw new Error("Failed to fetch events");
-        const data = await res.json();
-        setEvents(data);
+        const res = await api.get("/events");
+        setEvents(res.data);
       } catch (err) {
         console.error(err);
         setError("Unable to load events. Please try again later.");
@@ -28,8 +28,20 @@ const Events = () => {
     fetchEvents();
   }, []);
 
+  // Fetch user registrations on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      api.get("/events/user/registrations")
+        .then((res) => {
+          setUserRegistrations(res.data.registrations || []);
+        })
+        .catch((err) => console.error("Error fetching registrations:", err));
+    }
+  }, []);
+
   const getImageSrc = (url) =>
-    url.startsWith("http") ? url : `http://localhost:5500${url}`;
+    url.startsWith("http") ? url : `https://bitsa-backend-vrx7.onrender.com${url}`;
 
   const formatDate = (dateString) =>
     dateString
@@ -48,29 +60,10 @@ const Events = () => {
     return "Past";
   };
 
-  const [userRegistrations, setUserRegistrations] = useState([]);
-
-  // Fetch user registrations on mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch(`http://localhost:5500/api/events/user/registrations`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setUserRegistrations(data.registrations || []);
-        })
-        .catch((err) => console.error("Error fetching registrations:", err));
-    }
-  }, []);
-
   // Handle user registration
   const handleRegister = async (eventId) => {
-    // Check if user is logged in silently
     const token = localStorage.getItem("token");
     if (!token) {
-      // Silent redirect to login if not authenticated
       window.location.href = "/login";
       return;
     }
@@ -78,45 +71,23 @@ const Events = () => {
     try {
       setRegistering((prev) => ({ ...prev, [eventId]: true }));
 
-      const res = await fetch(
-        `http://localhost:5500/api/events/${eventId}/register`,
-        {
-          method: "POST",
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-        }
-      );
+      await api.post(`/events/${eventId}/register`);
 
-      const data = await res.json();
-      if (!res.ok) {
-        // Check if already registered
-        if (data.message && data.message.includes("already registered")) {
-          toast.error("You have already registered for this event.");
-        } else {
-          throw new Error(data.message || "Registration failed");
-        }
-        return;
-      }
-
-      // Show success message using toast
       toast.success("✅ Registration submitted successfully! Awaiting admin approval. Check your dashboard for status updates.");
 
       // Refresh registrations and events
-      const regRes = await fetch(`http://localhost:5500/api/events/user/registrations`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const regData = await regRes.json();
-      setUserRegistrations(regData.registrations || []);
+      const regRes = await api.get("/events/user/registrations");
+      setUserRegistrations(regRes.data.registrations || []);
       
-      // Refresh events to update registeredUsers
-      const eventsRes = await fetch("http://localhost:5500/api/events");
-      const eventsData = await eventsRes.json();
-      setEvents(eventsData);
+      const eventsRes = await api.get("/events");
+      setEvents(eventsRes.data);
     } catch (err) {
       console.error(err);
-      toast.error(`❌ ${err.message || "Registration failed. Please try again."}`);
+      if (err.response?.data?.message?.includes("already registered")) {
+        toast.error("You have already registered for this event.");
+      } else {
+        toast.error(`❌ ${err.response?.data?.message || "Registration failed. Please try again."}`);
+      }
     } finally {
       setRegistering((prev) => ({ ...prev, [eventId]: false }));
     }
@@ -237,7 +208,6 @@ const Events = () => {
                           onClick={() => {
                             const token = localStorage.getItem("token");
                             if (!token) {
-                              // Silent redirect to login
                               window.location.href = "/login";
                               return;
                             }

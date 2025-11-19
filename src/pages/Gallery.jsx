@@ -3,6 +3,7 @@ import { X, Image as ImageIcon, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../components/ui/card";
 import heroPicture from "../assets/hero_bitsa.jpg";
+import api from "../api/api";
 
 function Gallery() {
   const [images, setImages] = useState([]);
@@ -12,10 +13,8 @@ function Gallery() {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const res = await fetch("http://localhost:5500/api/gallery");
-        if (!res.ok) throw new Error("Failed to fetch gallery images");
-        const data = await res.json();
-        setImages(data);
+        const res = await api.get("/gallery");
+        setImages(res.data);
       } catch (err) {
         console.error(err);
         setImages([]);

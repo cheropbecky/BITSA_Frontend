@@ -1,7 +1,7 @@
 // File: src/pages/BitsaAdminDashboard.jsx
 import React, { useState, useEffect } from "react";
 import heroPicture from "../assets/hero_bitsa.jpg";
-
+import api from '../api/api';
 function AdminDashboard() {
   const [tab, setTab] = useState("dashboard");
 
@@ -74,7 +74,7 @@ function AdminDashboard() {
 
   const [filter, setFilter] = useState("all");
 
-  const adminToken = localStorage.getItem("adminToken");
+
 
   // Toast auto-hide
   useEffect(() => {
@@ -96,9 +96,7 @@ function AdminDashboard() {
   const fetchMetrics = async () => {
     if (!adminToken) return;
     try {
-      const res = await fetch("http://localhost:5500/api/admin/dashboard/metrics", {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.get("/admin/dashboard/metrics");
       if (!res.ok) throw new Error("Failed to fetch metrics");
       const data = await res.json();
       setMetrics(data.metrics);
@@ -110,7 +108,7 @@ function AdminDashboard() {
 
   const fetchBlogs = async () => {
     try {
-      const res = await fetch("http://localhost:5500/api/blogs");
+      const res = await api.get("/blogs");
       if (!res.ok) throw new Error("Failed to fetch blogs");
       const data = await res.json();
       setBlogs(data.blogs || data);
@@ -122,7 +120,7 @@ function AdminDashboard() {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch("http://localhost:5500/api/events");
+     const res = await api.get("/events");
       if (!res.ok) throw new Error("Failed to fetch events");
       const data = await res.json();
       setEvents(data.events || data);
@@ -134,7 +132,7 @@ function AdminDashboard() {
 
   const fetchGallery = async () => {
     try {
-      const res = await fetch("http://localhost:5500/api/gallery");
+      const res = await api.get("/gallery");
       if (!res.ok) throw new Error("Failed to fetch gallery");
       const data = await res.json();
       setGallery(data || []);
@@ -147,9 +145,7 @@ function AdminDashboard() {
   const fetchUsers = async () => {
     if (!adminToken) return;
     try {
-      const res = await fetch("http://localhost:5500/api/admin/users", {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.get("/admin/users");
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
       setUsers(data.users || data);
@@ -163,11 +159,9 @@ function AdminDashboard() {
     if (!adminToken) return;
     try {
       const url = eventId 
-        ? `http://localhost:5500/api/events/${eventId}/registrations`
-        : "http://localhost:5500/api/admin/registrations";
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      ? `/events/${eventId}/registrations`
+      : "/admin/registrations";
+      const res = await api.get(url);
       if (!res.ok) throw new Error("Failed to fetch registrations");
       const data = await res.json();
       setRegistrations(eventId ? data.registrations : data.registrations || []);
@@ -181,14 +175,9 @@ function AdminDashboard() {
   const handleRegistrationStatus = async (registrationId, status, notes = "") => {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-      const res = await fetch(`http://localhost:5500/api/events/registrations/${registrationId}/status`, {
-        method: "PUT",
-        headers: { 
-          Authorization: `Bearer ${adminToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status, notes }),
-      });
+      const res = await api.put(`/events/registrations/${registrationId}/status`, 
+  { status, notes }
+);
       if (!res.ok) throw new Error("Failed to update registration");
       setToast({ type: "success", message: `Registration ${status.toLowerCase()} successfully` });
       if (selectedEventId) {
@@ -206,10 +195,7 @@ function AdminDashboard() {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      const res = await fetch(`http://localhost:5500/api/admin/users/${userId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.delete(`/admin/users/${userId}`);
       if (!res.ok) throw new Error("Failed to delete user");
       setUsers(users.filter(u => (u._id || u.id) !== userId));
       setToast({ type: "success", message: "User deleted successfully" });
@@ -223,9 +209,7 @@ function AdminDashboard() {
   const fetchMessages = async () => {
     if (!adminToken) return;
     try {
-      const res = await fetch("http://localhost:5500/api/admin/messages", {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.get("/admin/messages");
       if (!res.ok) throw new Error("Failed to fetch messages");
       const data = await res.json();
       setMessages(data.messages || data);
@@ -267,11 +251,7 @@ function AdminDashboard() {
       if (newBlog.image) formData.append("image", newBlog.image);
       else if (newBlog.imageUrl) formData.append("imageUrl", newBlog.imageUrl);
 
-      const res = await fetch("http://localhost:5500/api/blogs", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: formData,
-      });
+      const res = await api.post("/blogs", formData);
 
       if (!res.ok) throw new Error("Failed to create blog");
       const savedBlog = await res.json();
@@ -309,14 +289,7 @@ function AdminDashboard() {
       }
       
       // Use PUT method for updating
-      const res = await fetch(`http://localhost:5500/api/blogs/${editingBlogId}`, {
-        method: "PUT",
-        headers: { 
-            Authorization: `Bearer ${adminToken}`,
-            // NOTE: Do NOT set Content-Type: 'application/json' when sending FormData
-        }, 
-        body: formData,
-      });
+      const res = await api.put(`/blogs/${editingBlogId}`, formData);
 
       if (!res.ok) throw new Error("Failed to update blog");
       const updatedBlog = await res.json();
@@ -341,10 +314,7 @@ function AdminDashboard() {
   const deleteBlog = async (id) => {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-      const res = await fetch(`http://localhost:5500/api/blogs/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.delete(`/blogs/${id}`);
       if (!res.ok) throw new Error("Failed to delete blog");
       setBlogs(blogs.filter((b) => b._id !== id));
       setToast({ type: "success", message: "Blog deleted" });
@@ -377,11 +347,7 @@ function AdminDashboard() {
       formData.append("location", newEvent.location || "");
       if (newEvent.image) formData.append("image", newEvent.image);
 
-      const res = await fetch("http://localhost:5500/api/events", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: formData,
-      });
+      const res = await api.post("/events", formData);
 
       if (!res.ok) {
         const errData = await res.json();
@@ -427,11 +393,7 @@ function AdminDashboard() {
       if (editingEventData.image) formData.append("image", editingEventData.image);
       else if (editingEventData.imageUrl) formData.append("imageUrl", editingEventData.imageUrl);
       
-      const res = await fetch(`http://localhost:5500/api/events/${editingEventId}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: formData,
-      });
+      const res = await api.put(`/events/${editingEventId}`, formData);
       
       if (!res.ok) throw new Error("Failed to update event");
       const data = await res.json();
@@ -452,10 +414,7 @@ function AdminDashboard() {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
-      const res = await fetch(`http://localhost:5500/api/events/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.delete(`/events/${id}`);
       if (!res.ok) throw new Error("Failed to delete event");
       setEvents(events.filter((e) => (e._id || e.id) !== id));
       setToast({ type: "success", message: "Event deleted" });
@@ -480,11 +439,7 @@ function AdminDashboard() {
       if (newImage.file) formData.append("image", newImage.file);
       else if (newImage.url) formData.append("imageUrl", newImage.url);
 
-      const res = await fetch("http://localhost:5500/api/gallery", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: formData,
-      });
+      const res = await api.post("/gallery", formData);
 
       const savedData = await res.json();
       if (!res.ok) throw new Error(savedData.message || "Failed to upload image");
@@ -519,11 +474,7 @@ function AdminDashboard() {
       if (editingGalleryData.image) formData.append("image", editingGalleryData.image);
       else if (editingGalleryData.imageUrl) formData.append("imageUrl", editingGalleryData.imageUrl);
       
-      const res = await fetch(`http://localhost:5500/api/gallery/${editingGalleryId}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${adminToken}` },
-        body: formData,
-      });
+     const res = await api.put(`/gallery/${editingGalleryId}`, formData);
       
       if (!res.ok) throw new Error("Failed to update gallery item");
       const data = await res.json();
@@ -542,10 +493,7 @@ function AdminDashboard() {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this image?")) return;
     try {
-      const res = await fetch(`http://localhost:5500/api/gallery/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const res = await api.delete(`/gallery/${id}`);
       if (!res.ok) throw new Error("Failed to delete image");
       setGallery(gallery.filter((g) => (g._id || g.id) !== id));
       setToast({ type: "success", message: "Image deleted successfully!" });
@@ -564,10 +512,7 @@ function AdminDashboard() {
   const deleteMessage = async (id) => {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-      const res = await fetch(`http://localhost:5500/api/admin/messages/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+     const res = await api.delete(`/admin/messages/${id}`);
       if (!res.ok) throw new Error("Failed to delete message");
       setMessages(messages.filter((m) => m._id !== id));
       setToast({ type: "success", message: "Message deleted" });

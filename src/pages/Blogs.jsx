@@ -5,7 +5,7 @@ import { Calendar, User, ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { motion } from 'framer-motion';
 import heroPicture from "../assets/hero_bitsa.jpg"; // background image
-import api from '../api'; // Axios instance pointing to deployed backend
+import api from '../api/api'; // Axios instance pointing to deployed backend
 
 const ImageWithFallback = ({ src, alt, className }) => {
   const [imgSrc, setImgSrc] = useState(src);
