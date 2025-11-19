@@ -5,6 +5,7 @@ import { Calendar, User, ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { motion } from 'framer-motion';
 import heroPicture from "../assets/hero_bitsa.jpg"; // background image
+import api from '../api'; // Axios instance pointing to deployed backend
 
 const ImageWithFallback = ({ src, alt, className }) => {
   const [imgSrc, setImgSrc] = useState(src);
@@ -29,10 +30,9 @@ function Blogs() {
 
   const fetchBlogs = async () => {
     try {
-      const response = await fetch('http://localhost:5500/api/blogs');
-      if (!response.ok) throw new Error('Failed to fetch blogs');
-      const data = await response.json();
-      setBlogs(data.blogs || data || []);
+      // Use api.js to fetch from deployed backend
+      const response = await api.get('/blogs');
+      setBlogs(response.data.blogs || response.data || []);
     } catch (error) {
       console.error('Error fetching blogs:', error);
       setBlogs([]);
@@ -42,14 +42,13 @@ function Blogs() {
   };
 
   const formatDate = (dateString) =>
-    dateString ? new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    dateString
+      ? new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      : '';
 
   if (selectedBlog) {
     return (
-      <div
-        className="min-h-screen bg-fixed bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroPicture})` }}
-      >
+      <div className="min-h-screen bg-fixed bg-cover bg-center" style={{ backgroundImage: `url(${heroPicture})` }}>
         <div className="bg-black/30 min-h-screen">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <Button
@@ -69,11 +68,7 @@ function Blogs() {
             >
               {selectedBlog.imageUrl && (
                 <div className="relative h-96 overflow-hidden">
-                  <ImageWithFallback
-                    src={selectedBlog.imageUrl}
-                    alt={selectedBlog.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <ImageWithFallback src={selectedBlog.imageUrl} alt={selectedBlog.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
               )}
@@ -117,10 +112,7 @@ function Blogs() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-fixed bg-cover bg-center"
-      style={{ backgroundImage: `url(${heroPicture})` }}
-    >
+    <div className="min-h-screen bg-fixed bg-cover bg-center" style={{ backgroundImage: `url(${heroPicture})` }}>
       <div className="bg-black/20 min-h-screen">
         <motion.div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 text-center pt-8"
