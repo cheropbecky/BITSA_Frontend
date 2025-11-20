@@ -94,29 +94,24 @@ function AdminDashboard() {
   }, []);
   
   const fetchMetrics = async () => {
-    if (!adminToken) return;
-    try {
-      const res = await api.get("/admin/dashboard/metrics");
-      if (!res.ok) throw new Error("Failed to fetch metrics");
-      const data = await res.json();
-      setMetrics(data.metrics);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching metrics" });
-    }
-  };
+  try {
+    const res = await api.get("/admin/dashboard/metrics");
+    setMetrics(res.data.metrics);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching metrics" });
+  }
+};
 
   const fetchBlogs = async () => {
-    try {
-      const res = await api.get("/blogs");
-      if (!res.ok) throw new Error("Failed to fetch blogs");
-      const data = await res.json();
-      setBlogs(data.blogs || data);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching blogs" });
-    }
-  };
+  try {
+    const res = await api.get("/blogs");
+    setBlogs(res.data.blogs || res.data);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching blogs" });
+  }
+};
 
   const fetchEvents = async () => {
     try {
@@ -130,95 +125,77 @@ function AdminDashboard() {
     }
   };
 
-  const fetchGallery = async () => {
-    try {
-      const res = await api.get("/gallery");
-      if (!res.ok) throw new Error("Failed to fetch gallery");
-      const data = await res.json();
-      setGallery(data || []);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching gallery" });
-    }
-  };
+ const fetchGallery = async () => {
+  try {
+    const res = await api.get("/gallery");
+    setGallery(res.data || []);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching gallery" });
+  }
+};
 
-  const fetchUsers = async () => {
-    if (!adminToken) return;
-    try {
-      const res = await api.get("/admin/users");
-      if (!res.ok) throw new Error("Failed to fetch users");
-      const data = await res.json();
-      setUsers(data.users || data);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching users" });
-    }
-  };
+ const fetchUsers = async () => {
+  try {
+    const res = await api.get("/admin/users");
+    setUsers(res.data.users || res.data);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching users" });
+  }
+};
   
   const fetchRegistrations = async (eventId = null) => {
-    if (!adminToken) return;
-    try {
-      const url = eventId 
+  try {
+    const url = eventId 
       ? `/events/${eventId}/registrations`
       : "/admin/registrations";
-      const res = await api.get(url);
-      if (!res.ok) throw new Error("Failed to fetch registrations");
-      const data = await res.json();
-      setRegistrations(eventId ? data.registrations : data.registrations || []);
-      if (eventId) setSelectedEventId(eventId);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching registrations" });
-    }
-  };
+    const res = await api.get(url);
+    setRegistrations(eventId ? res.data.registrations : res.data.registrations || []);
+    if (eventId) setSelectedEventId(eventId);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching registrations" });
+  }
+};
   
-  const handleRegistrationStatus = async (registrationId, status, notes = "") => {
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
-    try {
-      const res = await api.put(`/events/registrations/${registrationId}/status`, 
-  { status, notes }
-);
-      if (!res.ok) throw new Error("Failed to update registration");
-      setToast({ type: "success", message: `Registration ${status.toLowerCase()} successfully` });
-      if (selectedEventId) {
-        fetchRegistrations(selectedEventId);
-      } else {
-        fetchRegistrations();
-      }
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error updating registration" });
+ const handleRegistrationStatus = async (registrationId, status, notes = "") => {
+  try {
+    await api.put(`/events/registrations/${registrationId}/status`, { status, notes });
+    setToast({ type: "success", message: `Registration ${status.toLowerCase()} successfully` });
+    if (selectedEventId) {
+      fetchRegistrations(selectedEventId);
+    } else {
+      fetchRegistrations();
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error updating registration" });
+  }
+};
   
-  const deleteUser = async (userId) => {
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      const res = await api.delete(`/admin/users/${userId}`);
-      if (!res.ok) throw new Error("Failed to delete user");
-      setUsers(users.filter(u => (u._id || u.id) !== userId));
-      setToast({ type: "success", message: "User deleted successfully" });
-      fetchMetrics(); // Refresh metrics
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: err.message || "Error deleting user" });
-    }
-  };
+ const deleteUser = async (userId) => {
+  if (!window.confirm("Are you sure you want to delete this user?")) return;
+  try {
+    await api.delete(`/admin/users/${userId}`);
+    setUsers(users.filter(u => (u._id || u.id) !== userId));
+    setToast({ type: "success", message: "User deleted successfully" });
+    fetchMetrics();
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: err.response?.data?.message || "Error deleting user" });
+  }
+};
 
   const fetchMessages = async () => {
-    if (!adminToken) return;
-    try {
-      const res = await api.get("/admin/messages");
-      if (!res.ok) throw new Error("Failed to fetch messages");
-      const data = await res.json();
-      setMessages(data.messages || data);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching messages" });
-    }
-  };
-
+  try {
+    const res = await api.get("/admin/messages");
+    setMessages(res.data.messages || res.data);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching messages" });
+  }
+};
   // ------------------ BLOGS ACTIONS ------------------
 
   // Function to initialize editing
@@ -250,12 +227,8 @@ function AdminDashboard() {
       formData.append("content", newBlog.content);
       if (newBlog.image) formData.append("image", newBlog.image);
       else if (newBlog.imageUrl) formData.append("imageUrl", newBlog.imageUrl);
-
       const res = await api.post("/blogs", formData);
-
-      if (!res.ok) throw new Error("Failed to create blog");
-      const savedBlog = await res.json();
-      setBlogs([savedBlog, ...blogs]);
+      setBlogs([res.data, ...blogs]);
       setNewBlog(initialBlogState);
       setToast({ type: "success", message: "Blog created!" });
     } catch (err) {
@@ -289,13 +262,8 @@ function AdminDashboard() {
       }
       
       // Use PUT method for updating
-      const res = await api.put(`/blogs/${editingBlogId}`, formData);
-
-      if (!res.ok) throw new Error("Failed to update blog");
-      const updatedBlog = await res.json();
-
-      // Update the list of blogs with the new data
-      setBlogs(blogs.map(b => (b._id || b.id) === editingBlogId ? updatedBlog : b));
+     const res = await api.put(`/blogs/${editingBlogId}`, formData);
+     setBlogs(blogs.map(b => (b._id || b.id) === editingBlogId ? res.data : b));
       
       // Reset state
       setEditingBlogId(null);
@@ -314,8 +282,7 @@ function AdminDashboard() {
   const deleteBlog = async (id) => {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-      const res = await api.delete(`/blogs/${id}`);
-      if (!res.ok) throw new Error("Failed to delete blog");
+      await api.delete(`/blogs/${id}`);
       setBlogs(blogs.filter((b) => b._id !== id));
       setToast({ type: "success", message: "Blog deleted" });
     } catch (err) {
@@ -348,14 +315,7 @@ function AdminDashboard() {
       if (newEvent.image) formData.append("image", newEvent.image);
 
       const res = await api.post("/events", formData);
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Failed to create event");
-      }
-
-      const data = await res.json();
-      setEvents([data.event, ...events]);
+      setEvents([res.data.event, ...events]);
       setNewEvent({ title: "", datetime: "", location: "", image: null, description: "", imageUrl: "" });
       setToast({ type: "success", message: "Event created!" });
     } catch (err) {
@@ -393,11 +353,8 @@ function AdminDashboard() {
       if (editingEventData.image) formData.append("image", editingEventData.image);
       else if (editingEventData.imageUrl) formData.append("imageUrl", editingEventData.imageUrl);
       
-      const res = await api.put(`/events/${editingEventId}`, formData);
-      
-      if (!res.ok) throw new Error("Failed to update event");
-      const data = await res.json();
-      setEvents(events.map(e => (e._id || e.id) === editingEventId ? data.event : e));
+     const res = await api.put(`/events/${editingEventId}`, formData);
+     setEvents(events.map(e => (e._id || e.id) === editingEventId ? res.data.event : e));
       setEditingEventId(null);
       setEditingEventData({
         title: "", datetime: "", location: "", image: null, imageUrl: "", description: "", status: "Upcoming",
@@ -414,8 +371,7 @@ function AdminDashboard() {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
-      const res = await api.delete(`/events/${id}`);
-      if (!res.ok) throw new Error("Failed to delete event");
+      await api.delete(`/events/${id}`);
       setEvents(events.filter((e) => (e._id || e.id) !== id));
       setToast({ type: "success", message: "Event deleted" });
       fetchMetrics();
@@ -440,11 +396,7 @@ function AdminDashboard() {
       else if (newImage.url) formData.append("imageUrl", newImage.url);
 
       const res = await api.post("/gallery", formData);
-
-      const savedData = await res.json();
-      if (!res.ok) throw new Error(savedData.message || "Failed to upload image");
-
-      setGallery([savedData.item, ...gallery]);
+setGallery([res.data.item, ...gallery]);
       setNewImage({ file: null, url: "", title: "", description: "" });
       setToast({ type: "success", message: "Image uploaded successfully!" });
     } catch (err) {
@@ -474,11 +426,8 @@ function AdminDashboard() {
       if (editingGalleryData.image) formData.append("image", editingGalleryData.image);
       else if (editingGalleryData.imageUrl) formData.append("imageUrl", editingGalleryData.imageUrl);
       
-     const res = await api.put(`/gallery/${editingGalleryId}`, formData);
-      
-      if (!res.ok) throw new Error("Failed to update gallery item");
-      const data = await res.json();
-      setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? data.item : g));
+    const res = await api.put(`/gallery/${editingGalleryId}`, formData);
+setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item : g));
       setEditingGalleryId(null);
       setEditingGalleryData({ title: "", description: "", image: null, imageUrl: "" });
       setToast({ type: "success", message: "Gallery item updated!" });
@@ -493,8 +442,7 @@ function AdminDashboard() {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this image?")) return;
     try {
-      const res = await api.delete(`/gallery/${id}`);
-      if (!res.ok) throw new Error("Failed to delete image");
+      await api.delete(`/gallery/${id}`);
       setGallery(gallery.filter((g) => (g._id || g.id) !== id));
       setToast({ type: "success", message: "Image deleted successfully!" });
       fetchMetrics();
@@ -512,8 +460,7 @@ function AdminDashboard() {
   const deleteMessage = async (id) => {
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-     const res = await api.delete(`/admin/messages/${id}`);
-      if (!res.ok) throw new Error("Failed to delete message");
+     await api.delete(`/admin/messages/${id}`);
       setMessages(messages.filter((m) => m._id !== id));
       setToast({ type: "success", message: "Message deleted" });
     } catch (err) {
