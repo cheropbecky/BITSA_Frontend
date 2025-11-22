@@ -1436,18 +1436,22 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
 
     try {
       console.log("Sending reply to message ID:", selectedMessage._id);
+
       const res = await api.put(
         `/contact/${selectedMessage._id}/reply`,
         { adminReply: replyText },
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
 
-      console.log("Reply API response:", res.data);
+      console.log("Reply API response:", res?.data);
 
-      if (res?.data?.updatedMessage) {
+      // Handle updatedMessage safely
+      const updatedMessage = res?.data?.updatedMessage || null;
+
+      if (updatedMessage) {
         setMessages(prev =>
           prev.map(msg =>
-            msg._id === selectedMessage._id ? res.data.updatedMessage : msg
+            msg._id === selectedMessage._id ? updatedMessage : msg
           )
         );
 
@@ -1456,11 +1460,23 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
         setReplyText("");
         setSelectedMessage(null);
       } else {
-        toast.warning("Reply sent, but response could not be confirmed.");
+        // In case API succeeded but didn't return updatedMessage
+        const infoMsg = res?.data?.message || res?.data?.info || "Reply sent, but no confirmation received.";
+        toast.warning(infoMsg);
       }
     } catch (err) {
-      console.error("Send reply error:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Failed to send reply");
+      // Fully safe extraction of API error message
+      const respData = err?.response?.data || {};
+      console.error("Send reply error full response:", err.response || err);
+
+      const userMessage =
+        respData?.message ||
+        respData?.error ||
+        respData?.info ||
+        err?.message ||
+        "Failed to send reply";
+
+      toast.error(userMessage);
     }
   }}
 >
