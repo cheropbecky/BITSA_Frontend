@@ -54,7 +54,7 @@ function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/contacts/create", formData);
+      const res = await api.post("/contact/send", formData);
 
       alert("Message sent successfully! We'll get back to you.");
       setFormData({ name: "", email: "", subject: "", message: "" });

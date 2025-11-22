@@ -14,6 +14,9 @@ function AdminDashboard() {
   const [metrics, setMetrics] = useState(null);
   const [registrations, setRegistrations] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [showReplyModal, setShowReplyModal] = useState(false);  // controls modal visibility
+  const [selectedMessage, setSelectedMessage] = useState(null); // stores the message being replied to
+  const [replyText, setReplyText] = useState("");  
 
   // Forms
   const initialBlogState = {
@@ -114,16 +117,16 @@ function AdminDashboard() {
 };
 
   const fetchEvents = async () => {
-    try {
-     const res = await api.get("/events");
-      if (!res.ok) throw new Error("Failed to fetch events");
-      const data = await res.json();
-      setEvents(data.events || data);
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error fetching events" });
-    }
-  };
+  try {
+    const res = await api.get("/events");
+    const data = res.data;
+
+    setEvents(data.events || data);
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error fetching events" });
+  }
+};
 
  const fetchGallery = async () => {
   try {
@@ -213,70 +216,100 @@ function AdminDashboard() {
 
   // 1. CREATE Blog
   const createBlog = async (e) => {
-    e.preventDefault();
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
-    if (!newBlog.title || !newBlog.author || !newBlog.content)
-      return setToast({ type: "error", message: "Fill all required fields!" });
-      
-    setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("title", newBlog.title);
-      formData.append("author", newBlog.author);
-      formData.append("category", newBlog.category);
-      formData.append("content", newBlog.content);
-      if (newBlog.image) formData.append("image", newBlog.image);
-      else if (newBlog.imageUrl) formData.append("imageUrl", newBlog.imageUrl);
-      const res = await api.post("/blogs", formData);
-      setBlogs([res.data, ...blogs]);
-      setNewBlog(initialBlogState);
-      setToast({ type: "success", message: "Blog created!" });
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error creating blog." });
-    } finally {
-        setIsSubmitting(false);
+  e.preventDefault();
+
+  const adminToken = localStorage.getItem("adminToken");
+  if (!adminToken)
+    return setToast({ type: "error", message: "Admin not logged in!" });
+
+  if (!newBlog.title || !newBlog.author || !newBlog.content)
+    return setToast({ type: "error", message: "Fill all required fields!" });
+
+  setIsSubmitting(true);
+
+  try {
+    const formData = new FormData();
+    formData.append("title", newBlog.title);
+    formData.append("author", newBlog.author);
+    formData.append("category", newBlog.category);
+    formData.append("content", newBlog.content);
+
+    if (newBlog.image) {
+      formData.append("image", newBlog.image);
+    } else if (newBlog.imageUrl) {
+      formData.append("imageUrl", newBlog.imageUrl);
     }
-  };
+
+    // ⭐ FIX: Send token in headers
+    const res = await api.post("/blogs", formData, {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    setBlogs([res.data, ...blogs]);
+    setNewBlog(initialBlogState);
+    setToast({ type: "success", message: "Blog created!" });
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error creating blog." });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   // 2. UPDATE Blog
   const updateBlog = async (e) => {
-    e.preventDefault();
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
-    if (!editingBlogData.title || !editingBlogData.author || !editingBlogData.content)
-      return setToast({ type: "error", message: "Fill all required fields!" });
+  e.preventDefault();
 
-    setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("title", editingBlogData.title);
-      formData.append("author", editingBlogData.author);
-      formData.append("category", editingBlogData.category);
-      formData.append("content", editingBlogData.content);
-      
-      // Only append image/imageUrl if it's a new file or the URL is present
-      if (editingBlogData.image) {
-          formData.append("image", editingBlogData.image);
-      } else if (editingBlogData.imageUrl) {
-          formData.append("imageUrl", editingBlogData.imageUrl);
-      }
-      
-      // Use PUT method for updating
-     const res = await api.put(`/blogs/${editingBlogId}`, formData);
-     setBlogs(blogs.map(b => (b._id || b.id) === editingBlogId ? res.data : b));
-      
-      // Reset state
-      setEditingBlogId(null);
-      setEditingBlogData(initialBlogState);
-      setToast({ type: "success", message: "Blog updated!" });
-    } catch (err) {
-      console.error(err);
-      setToast({ type: "error", message: "Error updating blog." });
-    } finally {
-        setIsSubmitting(false);
+  const adminToken = localStorage.getItem("adminToken"); // ✅ FIX
+
+  if (!adminToken)
+    return setToast({ type: "error", message: "Admin not logged in!" });
+
+  if (!editingBlogData.title || !editingBlogData.author || !editingBlogData.content)
+    return setToast({ type: "error", message: "Fill all required fields!" });
+
+  setIsSubmitting(true);
+
+  try {
+    const formData = new FormData();
+    formData.append("title", editingBlogData.title);
+    formData.append("author", editingBlogData.author);
+    formData.append("category", editingBlogData.category);
+    formData.append("content", editingBlogData.content);
+
+    if (editingBlogData.image) {
+      formData.append("image", editingBlogData.image);
+    } else if (editingBlogData.imageUrl) {
+      formData.append("imageUrl", editingBlogData.imageUrl);
     }
-  };
 
+    const res = await api.put(`/blogs/${editingBlogId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${adminToken}`, // ✅ FIX
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    setBlogs(
+      blogs.map((b) =>
+        (b._id || b.id) === editingBlogId ? res.data : b
+      )
+    );
+
+    setEditingBlogId(null);
+    setEditingBlogData(initialBlogState);
+    setToast({ type: "success", message: "Blog updated!" });
+  } catch (err) {
+    console.error(err);
+    setToast({ type: "error", message: "Error updating blog." });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // 3. DELETE Blog
   const deleteBlog = async (id) => {
@@ -302,9 +335,10 @@ function AdminDashboard() {
 
   const createEvent = async (e) => {
     e.preventDefault();
+    const currentAdminToken = localStorage.getItem("adminToken");
     if (!newEvent.title || !newEvent.datetime || !newEvent.description)
       return setToast({ type: "error", message: "Fill all required fields!" });
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
+    if (!currentAdminToken) return setToast({ type: "error", message: "Admin not logged in!" });
 
     try {
       const formData = new FormData();
@@ -314,7 +348,9 @@ function AdminDashboard() {
       formData.append("location", newEvent.location || "");
       if (newEvent.image) formData.append("image", newEvent.image);
 
-      const res = await api.post("/events", formData);
+      const res = await api.post("/events", formData, {
+         headers: { Authorization: `Bearer ${currentAdminToken}`, "Content-Type": "multipart/form-data" }
+      });
       setEvents([res.data.event, ...events]);
       setNewEvent({ title: "", datetime: "", location: "", image: null, description: "", imageUrl: "" });
       setToast({ type: "success", message: "Event created!" });
@@ -339,7 +375,8 @@ function AdminDashboard() {
   
   const updateEvent = async (e) => {
     e.preventDefault();
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
+    const currentAdminToken = localStorage.getItem("adminToken");
+    if (!currentAdminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!editingEventData.title || !editingEventData.datetime || !editingEventData.description)
       return setToast({ type: "error", message: "Fill all required fields!" });
     
@@ -353,7 +390,9 @@ function AdminDashboard() {
       if (editingEventData.image) formData.append("image", editingEventData.image);
       else if (editingEventData.imageUrl) formData.append("imageUrl", editingEventData.imageUrl);
       
-     const res = await api.put(`/events/${editingEventId}`, formData);
+     const res = await api.put(`/events/${editingEventId}`, formData, {
+        headers: { Authorization: `Bearer ${currentAdminToken}`, "Content-Type": "multipart/form-data" }
+     });
      setEvents(events.map(e => (e._id || e.id) === editingEventId ? res.data.event : e));
       setEditingEventId(null);
       setEditingEventData({
@@ -368,10 +407,13 @@ function AdminDashboard() {
   };
 
   const deleteEvent = async (id) => {
-    if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
+    const currentAdminToken = localStorage.getItem("adminToken");
+    if (!currentAdminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
-      await api.delete(`/events/${id}`);
+      await api.delete(`/events/${id}`, {
+        headers: { Authorization: `Bearer ${currentAdminToken}` }
+      });
       setEvents(events.filter((e) => (e._id || e.id) !== id));
       setToast({ type: "success", message: "Event deleted" });
       fetchMetrics();
@@ -491,6 +533,34 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
       ))}
     </div>
   );
+
+  // ------------------ Messages ------------------
+  const sendReply = async () => {
+  if (!replyText.trim()) {
+    toast.error("Reply cannot be empty");
+    return;
+  }
+
+  try {
+    const res = await api.put(`/contact/${selectedMessage._id}/reply`, { adminReply: replyText }, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
+    });
+
+    // Update messages state
+    setMessages(prev => prev.map(msg => 
+      msg._id === selectedMessage._id ? res.data.updatedMessage : msg
+    ));
+
+    toast.success("Reply sent successfully!");
+    setShowReplyModal(false);
+    setReplyText("");
+    setSelectedMessage(null);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to send reply");
+  }
+};
+
   
   //  RENDER HELPER: Blog Form 
   const BlogForm = ({ type, data, setData, handleSubmit, handleCancel }) => {
@@ -631,42 +701,21 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
                   <p className="text-gray-600">Pending Registrations</p>
                   <p className="text-xs text-yellow-700 mt-2"> Click to review</p>
                 </div>
-                <div 
-                  className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer border-2 border-transparent hover:border-blue-400"
+                <div
+                  className="bg-blue-100 rounded-lg p-6 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer border-2 border-transparent hover:border-blue-500"
                   onClick={() => {
-                    setTab("events");
-                    setFilter("upcoming");
+                    setTab("messages");
+                    fetchMessages();
                   }}
-                  title="Click to view upcoming events"
+                  title="Click to view messages"
                 >
-                  <h3 className="text-2xl font-bold text-blue-600">{metrics.eventsByStatus?.upcoming || 0}</h3>
-                  <p className="text-gray-600">Upcoming Events</p>
-                  <p className="text-xs text-blue-500 mt-2"> Click to view</p>
+                  <h3 className="text-2xl font-bold text-blue-800">
+                    {metrics.totalMessages}
+                  </h3>
+                  <p className="text-gray-600">Messages</p>
+                  <p className="text-xs text-blue-700 mt-2">Click to view</p>
                 </div>
-                <div 
-                  className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer border-2 border-transparent hover:border-green-400"
-                  onClick={() => {
-                    setTab("events");
-                    setFilter("ongoing");
-                  }}
-                  title="Click to view ongoing events"
-                >
-                  <h3 className="text-2xl font-bold text-green-600">{metrics.eventsByStatus?.ongoing || 0}</h3>
-                  <p className="text-gray-600">Ongoing Events</p>
-                  <p className="text-xs text-green-500 mt-2"> Click to view</p>
-                </div>
-                <div 
-                  className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer border-2 border-transparent hover:border-gray-400"
-                  onClick={() => {
-                    setTab("events");
-                    setFilter("past");
-                  }}
-                  title="Click to view past events"
-                >
-                  <h3 className="text-2xl font-bold text-gray-600">{metrics.eventsByStatus?.past || 0}</h3>
-                  <p className="text-gray-600">Past Events</p>
-                  <p className="text-xs text-gray-500 mt-2"> Click to view</p>
-                </div>
+
               </div>
             )}
             
@@ -1248,52 +1297,185 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
 
             {/* MESSAGES */}
             {tab === "messages" && (
-              <div className="col-span-3">
-                <div className="hidden sm:block overflow-x-auto">
-                  <table className="min-w-full text-left border">
-                    <thead className="bg-blue-50">
-                      <tr>
-                        <th className="p-2 whitespace-nowrap">Name</th>
-                        <th className="p-2 whitespace-nowrap">Email</th>
-                        <th className="p-2 whitespace-nowrap">Subject</th>
-                        <th className="p-2 whitespace-nowrap">Message</th>
-                        <th className="p-2 whitespace-nowrap">Date</th>
-                        <th className="p-2 whitespace-nowrap">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {messages.map(m => (
-                        <tr key={m._id || m.id} className="hover:bg-gray-50">
-                          <td className="p-2 whitespace-nowrap">{m.name}</td>
-                          <td className="p-2 whitespace-nowrap">{m.email}</td>
-                          <td className="p-2 whitespace-nowrap">{m.subject}</td>
-                          <td className="p-2">{m.message}</td>
-                          <td className="p-2 whitespace-nowrap">{new Date(m.createdAt).toLocaleDateString()}</td>
-                          <td className="p-2 whitespace-nowrap">
-                            <button onClick={() => deleteMessage(m._id || m.id)} className="px-2 py-1 text-red-600 bg-blue-300 font-bold rounded hover:bg-red-400 transition-colors">Delete</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+  <div className="col-span-3">
+    {/* Desktop Table */}
+    <div className="hidden sm:block overflow-x-auto">
+      <table className="min-w-full text-left border">
+        <thead className="bg-blue-50">
+          <tr>
+            <th className="p-2 whitespace-nowrap">Name</th>
+            <th className="p-2 whitespace-nowrap">Email</th>
+            <th className="p-2 whitespace-nowrap">Subject</th>
+            <th className="p-2 whitespace-nowrap">Message</th>
+            <th className="p-2 whitespace-nowrap">Date</th>
+            <th className="p-2 whitespace-nowrap">Actions</th>
+          </tr>
+        </thead>
 
-                <div className="sm:hidden grid grid-cols-1 gap-4">
-                  {messages.map(m => (
-                    <div key={m._id || m.id} className="border p-4 rounded-lg bg-white shadow-sm">
-                      <p><strong>Name:</strong> {m.name}</p>
-                      <p><strong>Email:</strong> {m.email}</p>
-                      <p><strong>Subject:</strong> {m.subject}</p>
-                      <p><strong>Message:</strong> {m.message}</p>
-                      <p><strong>Date:</strong> {new Date(m.createdAt).toLocaleDateString()}</p>
-                      <button onClick={() => deleteMessage(m._id || m.id)} className="mt-2 px-2 py-1 bg-red-200 rounded hover:bg-red-300 transition-colors">Delete</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+        <tbody>
+          {messages.map(m => (
+            <tr key={m._id || m.id} className="hover:bg-gray-50">
+              <td className="p-2 whitespace-nowrap">{m.name}</td>
+              <td className="p-2 whitespace-nowrap">{m.email}</td>
+              <td className="p-2 whitespace-nowrap">{m.subject}</td>
+              <td className="p-2">{m.message}</td>
+              <td className="p-2 whitespace-nowrap">
+                {new Date(m.createdAt).toLocaleDateString()}
+              </td>
+
+              <td className="p-2 whitespace-nowrap flex items-center gap-2">
+                {/* Reply button */}
+                <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                  onClick={() => {
+                    setSelectedMessage(m);
+                    setReplyText(m.adminReply || "");
+                    setShowReplyModal(true);
+                  }}
+                >
+                  Reply
+                </button>
+
+                {/* Delete button */}
+                <button
+                  onClick={() => deleteMessage(m._id || m.id)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Mobile Cards */}
+    <div className="sm:hidden grid grid-cols-1 gap-4">
+      {messages.map(m => (
+        <div
+          key={m._id || m.id}
+          className="border p-4 rounded-lg bg-white shadow-sm"
+        >
+          <p><strong>Name:</strong> {m.name}</p>
+          <p><strong>Email:</strong> {m.email}</p>
+          <p><strong>Subject:</strong> {m.subject}</p>
+          <p><strong>Message:</strong> {m.message}</p>
+          <p><strong>Date:</strong> {new Date(m.createdAt).toLocaleDateString()}</p>
+
+          <div className="flex gap-2 mt-2">
+            {/* Reply (Mobile) */}
+            <button
+              className="flex-1 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
+              onClick={() => {
+                setSelectedMessage(m);
+                setReplyText(m.adminReply || "");
+                setShowReplyModal(true);
+              }}
+            >
+              Reply
+            </button>
+
+            {/* Delete */}
+            <button
+              onClick={() => deleteMessage(m._id || m.id)}
+              className="flex-1 bg-red-400 text-white px-2 py-1 rounded hover:bg-red-500 transition"
+            >
+              Delete
+            </button>
           </div>
-        </main>
+        </div>
+      ))}
+    </div>
+
+    {/* Reply Modal */}
+    {showReplyModal && selectedMessage && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
+          <h2 className="text-xl font-bold mb-2">
+            Reply to {selectedMessage.name} ({selectedMessage.email})
+          </h2>
+
+          <textarea
+            className="w-full h-32 border p-2 rounded mb-4"
+            placeholder="Type your reply..."
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-2">
+            <button
+              className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+              onClick={() => {
+                setShowReplyModal(false);
+                setReplyText("");
+                setSelectedMessage(null);
+              }}
+            >
+              Cancel
+            </button>
+
+            <button
+  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+  onClick={async () => {
+    if (!replyText.trim()) {
+      toast.error("Reply cannot be empty");
+      return;
+    }
+
+    const adminToken = localStorage.getItem("adminToken");
+    if (!adminToken) {
+      toast.error("Admin not authenticated. Please log in again.");
+      return;
+    }
+
+    if (!selectedMessage?._id) {
+      toast.error("No message selected to reply to.");
+      return;
+    }
+
+    try {
+      console.log("Sending reply to message ID:", selectedMessage._id);
+      const res = await api.put(
+        `/contact/${selectedMessage._id}/reply`,
+        { adminReply: replyText },
+        { headers: { Authorization: `Bearer ${adminToken}` } }
+      );
+
+      console.log("Reply API response:", res.data);
+
+      if (res?.data?.updatedMessage) {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === selectedMessage._id ? res.data.updatedMessage : msg
+          )
+        );
+
+        toast.success("Reply sent successfully!");
+        setShowReplyModal(false);
+        setReplyText("");
+        setSelectedMessage(null);
+      } else {
+        toast.warning("Reply sent, but response could not be confirmed.");
+      }
+    } catch (err) {
+      console.error("Send reply error:", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Failed to send reply");
+    }
+  }}
+>
+  Send Reply
+</button>
+
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
+</div>
+</main>
 
         {/* Toast */}
         {toast && (
