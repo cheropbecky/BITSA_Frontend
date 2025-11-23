@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 import "aos/dist/aos.css";
 import {
   Calendar,
@@ -18,36 +18,36 @@ function Homepage({ onNavigate }) {
   useEffect(() => {
     AOS.init({
       duration: 1000,
-      once: false, 
-      mirror: true, 
+      once: false,
+      mirror: true,
     });
   }, []);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const features = [
     {
-      icon: <Users className="w-22 h-12 text-amber-500 " />,
+      icon: <Users className="w-10 h-10 sm:w-12 sm:h-12 text-amber-500" />,
       title: "Community",
       description:
         "Connect with fellow IT students and build lasting professional relationships.",
       gradient: "from-blue-500 to-blue-600",
     },
     {
-      icon: <Calendar className="w-22 h-12 text-blue-500" />,
+      icon: <Calendar className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500" />,
       title: "Events",
       description:
         "Participate in workshops, hackathons, and networking events throughout the year.",
       gradient: "from-blue-600 to-blue-700",
     },
     {
-      icon: <BookOpen className="w-22 h-12 text-red-500" />,
+      icon: <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-red-500" />,
       title: "Resources",
       description:
         "Access study materials, tutorials, and career guidance from industry experts.",
       gradient: "from-blue-700 to-blue-800",
     },
     {
-      icon: <Trophy className="w-22 h-12 text-purple-600" />,
+      icon: <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-purple-600" />,
       title: "Competitions",
       description:
         "Showcase your skills in coding competitions and hackathons with prizes.",
@@ -59,33 +59,35 @@ function Homepage({ onNavigate }) {
     <div className="min-h-screen">
       {/* HERO SECTION */}
       <div
-        className="relative overflow-hidden bg-cover bg-center min-h-[90vh]"
+        className="relative overflow-hidden bg-cover bg-center min-h-[60vh] sm:min-h-[80vh]"
         style={{ backgroundImage: `url(${heroPicture})` }}
       >
         <div className="absolute inset-0 bg-black/20" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000" />
+        <div className="absolute top-6 right-4 w-48 h-48 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse hidden sm:block" />
+        <div className="absolute bottom-6 left-4 w-44 h-44 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse hidden sm:block" />
 
         <div
-          className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center text-white"
+          // 💡 FIX APPLIED: w-full ensures full width on mobile, 
+          // while xl:max-w-7xl limits width only on large screens.
+          className="relative w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 md:py-32 text-center text-white"
           data-aos="fade-up"
         >
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg mb-8 border border-blue-200">
+          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg mb-6 border border-blue-200">
             <Sparkles className="w-4 h-4 text-blue-600" />
-            <span className="text-blue-700 font-medium">
+            <span className="text-blue-700 font-medium text-xs sm:text-sm">
               Empowering Tech Leaders Since 2020
             </span>
           </div>
 
           <h1
-            className="text-7xl md:text-6xl mb-6 font-extrabold drop-shadow-lg animate-bounce-slow"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6 font-extrabold drop-shadow-lg"
             data-aos="zoom-in"
           >
             Welcome to <span className="text-blue-400">BITSA</span>
           </h1>
 
           <p
-            className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-blue-100 font-bold drop-shadow"
+            className="text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto text-blue-100 font-semibold"
             data-aos="fade-up"
             data-aos-delay="200"
           >
@@ -94,17 +96,21 @@ function Homepage({ onNavigate }) {
             collaboration, and excellence.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
             <button
+              type="button"
               onClick={() => navigate("/register")}
-              className="bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 hover:shadow-blue-500/50 hover:bg-blue-700 animate-glow"
+              aria-label="Join BITSA"
+              className="w-full sm:w-auto bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg flex items-center justify-center gap-2 transition-transform transform hover:scale-105 hover:shadow-blue-500/40"
             >
-              Join BITSA Today <ArrowRight className="w-5 h-5" />
+              Join BITSA Today <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
+              type="button"
               onClick={() => navigate("/events")}
-              className="bg-white/80 backdrop-blur-sm border-2 border-blue-300 text-blue-700 px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105 hover:shadow-lg hover:bg-blue-50"
+              aria-label="Explore events"
+              className="w-full sm:w-auto bg-white/80 backdrop-blur-sm border-2 border-blue-300 text-blue-700 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-blue-50"
             >
               Explore Events
             </button>
@@ -113,38 +119,35 @@ function Homepage({ onNavigate }) {
       </div>
 
       {/* FEATURES SECTION */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-white">
-        <div className="text-center mb-16" data-aos="fade-up">
-          <h2 className="text-4xl md:text-5xl mb-4 text-gray-900 font-extrabold">
+      <div className="max-w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 bg-white">
+        <div className="text-center mb-8 sm:mb-12" data-aos="fade-up">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl mb-3 text-gray-900 font-extrabold">
             Why Join <span className="text-blue-600">BITSA?</span>
           </h2>
-          <p className="text-xl font-bold text-blue-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg font-bold text-blue-600 max-w-2xl mx-auto">
             Discover the benefits of being part of our vibrant IT student
             community.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
               data-aos="zoom-in"
-              data-aos-delay={index * 200}
-              className="group relative overflow-hidden bg-blue-100 border border-blue-100 rounded-2xl shadow-md hover:shadow-blue-400 hover:-translate-y-2 transition-all duration-500 p-8"
+              data-aos-delay={index * 150}
+              className="group relative overflow-hidden bg-blue-50 border border-blue-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6 max-w-md mx-auto sm:mx-0"
             >
-              <div
-                className={`absolute inset-0 bg-linear-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity`}
-              />
               <div className="relative">
-                <div className="flex justify-center mb-6">
-                  <div className="p-4 bg-blue-200 rounded-2xl group-hover:bg-blue-100 transition-colors duration-300">
+                <div className="flex justify-center mb-4 sm:mb-6">
+                  <div className="p-3 sm:p-4 bg-blue-200 rounded-2xl group-hover:bg-blue-100 transition-colors duration-300">
                     {feature.icon}
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-center text-gray-900 mb-3">
+                <h3 className="text-lg sm:text-xl font-semibold text-center text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-center font-bold">
+                <p className="text-gray-600 text-center font-medium text-sm sm:text-base">
                   {feature.description}
                 </p>
               </div>
@@ -154,26 +157,26 @@ function Homepage({ onNavigate }) {
       </div>
 
       {/* ABOUT SECTION */}
-      <div className="bg-linear-to-br from-blue-100 via-blue-50 to-indigo-100 py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-100 py-12 sm:py-16">
+        <div className="max-w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
           <div data-aos="fade-right">
-            <div className="inline-block bg-blue-600 text-white px-4 py-1 rounded-full text-sm mb-6">
+            <div className="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm mb-4">
               About Us
             </div>
-            <h2 className="text-4xl md:text-5xl mb-6 text-gray-900 font-bold">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl mb-4 text-gray-900 font-bold">
               Building the Future of Technology
             </h2>
-            <p className="text-lg text-gray-700 mb-4 font-bold">
+            <p className="text-sm sm:text-base text-gray-700 mb-3 font-semibold">
               BITSA is a dynamic organization dedicated to fostering
               collaboration, innovation, and professional development among IT
               students.
             </p>
-            <p className="text-lg text-gray-700 mb-8 font-bold">
+            <p className="text-sm sm:text-base text-gray-700 mb-5 font-semibold">
               We organize hackathons, workshops, networking events, and provide
               a platform for students to connect, learn, and grow in the
               ever-evolving tech industry.
             </p>
-            <ul className="space-y-3 mb-8 font-bold">
+            <ul className="space-y-2 mb-6 font-semibold">
               {[
                 "Industry-led Workshops",
                 "Networking Opportunities",
@@ -183,7 +186,7 @@ function Homepage({ onNavigate }) {
                 <li key={i} className="flex items-center gap-3 text-gray-700">
                   <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shrink-0 animate-pulse">
                     <svg
-                      className="w-4 h-4 text-white"
+                      className="w-3 h-3 text-white"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -196,50 +199,50 @@ function Homepage({ onNavigate }) {
                       />
                     </svg>
                   </div>
-                  {item}
+                  <span className="text-sm sm:text-base">{item}</span>
                 </li>
               ))}
             </ul>
             <button
+              type="button"
               onClick={() => navigate("/contact")}
-              className="bg-blue-600 text-white px-8 py-4 rounded-full hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2 font-bold transform hover:scale-105 hover:shadow-blue-500/50"
+              className="w-full sm:w-auto bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all shadow-md flex items-center gap-2 font-semibold transform hover:scale-105"
             >
-              Get in Touch <ArrowRight className="w-5 h-5" />
+              Get in Touch <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-         
           {/* About Image */}
-<div className="relative" data-aos="fade-left">
-  <img
-    src="https://images.unsplash.com/photo-1638029202288-451a89e0d55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2RpbmclMjBoYWNrYXRob258ZW58MXx8fHwxNzYyMjUxOTA4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-    alt="Coding Hackathon"
-    className="rounded-3xl shadow-2xl object-cover w-full h-[450px] border-4 border-white hover:scale-105 transition-transform duration-700"
-  />
-  <div className="absolute inset-0 rounded-3xl bg-gradient-to-transparent from-blue-900/30 to-transparent"></div>
-</div>
-
+          <div className="relative" data-aos="fade-left">
+            <img
+              src="https://images.unsplash.com/photo-1638029202288-451a89e0d55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2RpbmclMjBoYWNrYXRob258ZW58MXx8fHwxNzYyMjUxOTA4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+              alt="Coding Hackathon"
+              className="rounded-3xl shadow-2xl object-cover w-full h-48 sm:h-64 md:h-80 lg:h-[420px] border-4 border-white transition-transform duration-700 hover:scale-105"
+            />
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-blue-900/10 to-transparent pointer-events-none"></div>
+          </div>
         </div>
       </div>
 
       {/* CALL TO ACTION SECTION */}
-      <div className="bg-blue-700 py-20 text-center text-white">
-        <div className="max-w-4xl mx-auto px-4" data-aos="fade-up">
-          <h2 className="text-4xl md:text-5xl font-extrabold mb-6 animate-pulse">
+      <div className="bg-blue-700 py-12 sm:py-16 text-center text-white">
+        <div className="w-full xl:max-w-4xl mx-auto px-4" data-aos="fade-up">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4 sm:mb-6">
             Ready to Be Part of Something Bigger?
           </h2>
-          <p className="text-lg md:text-xl mb-10 font-bold text-blue-100">
+          <p className="text-sm sm:text-base md:text-lg mb-6 font-semibold text-blue-100">
             Join BITSA today and take the first step toward becoming a leader in
             the tech community.
           </p>
           <button
+            type="button"
             onClick={() => navigate("/register")}
-            className="bg-white text-blue-700 px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-100 transition-all shadow-lg flex items-center gap-2 mx-auto transform hover:scale-105 hover:shadow-blue-300/50"
+            className="w-full sm:w-auto bg-white text-blue-700 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-blue-100 transition-all shadow-md flex items-center gap-2 mx-auto transform hover:scale-105"
           >
-            Join Now <ArrowRight className="w-5 h-5" />
+            Join Now <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
-      </div>  
+      </div>
     </div>
   );
 }

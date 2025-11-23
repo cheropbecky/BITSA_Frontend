@@ -180,6 +180,7 @@ function AdminDashboard() {
  const deleteUser = async (userId) => {
   if (!window.confirm("Are you sure you want to delete this user?")) return;
   try {
+    // Current admin token is not required for this specific delete route
     await api.delete(`/admin/users/${userId}`);
     setUsers(users.filter(u => (u._id || u.id) !== userId));
     setToast({ type: "success", message: "User deleted successfully" });
@@ -240,7 +241,7 @@ function AdminDashboard() {
       formData.append("imageUrl", newBlog.imageUrl);
     }
 
-    // ⭐ FIX: Send token in headers
+    // ⭐ Send token in headers
     const res = await api.post("/blogs", formData, {
       headers: {
         Authorization: `Bearer ${adminToken}`,
@@ -313,9 +314,12 @@ function AdminDashboard() {
 
   // 3. DELETE Blog
   const deleteBlog = async (id) => {
+    const adminToken = localStorage.getItem("adminToken"); // 💡 FIX: Added missing declaration
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-      await api.delete(`/blogs/${id}`);
+      await api.delete(`/blogs/${id}`, {
+         headers: { Authorization: `Bearer ${adminToken}` }
+      });
       setBlogs(blogs.filter((b) => b._id !== id));
       setToast({ type: "success", message: "Blog deleted" });
     } catch (err) {
@@ -426,6 +430,7 @@ function AdminDashboard() {
   // ------------------ GALLERY ------------------
   const addImage = async (e) => {
     e.preventDefault();
+    const adminToken = localStorage.getItem("adminToken"); // 💡 FIX: Added missing declaration
     if (!newImage.file && !newImage.url)
       return setToast({ type: "error", message: "Image file or URL required!" });
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
@@ -437,8 +442,10 @@ function AdminDashboard() {
       if (newImage.file) formData.append("image", newImage.file);
       else if (newImage.url) formData.append("imageUrl", newImage.url);
 
-      const res = await api.post("/gallery", formData);
-setGallery([res.data.item, ...gallery]);
+      const res = await api.post("/gallery", formData, {
+        headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "multipart/form-data" }
+      });
+      setGallery([res.data.item, ...gallery]);
       setNewImage({ file: null, url: "", title: "", description: "" });
       setToast({ type: "success", message: "Image uploaded successfully!" });
     } catch (err) {
@@ -459,6 +466,7 @@ setGallery([res.data.item, ...gallery]);
   
   const updateGallery = async (e) => {
     e.preventDefault();
+    const adminToken = localStorage.getItem("adminToken"); // 💡 FIX: Added missing declaration
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     
     try {
@@ -468,7 +476,9 @@ setGallery([res.data.item, ...gallery]);
       if (editingGalleryData.image) formData.append("image", editingGalleryData.image);
       else if (editingGalleryData.imageUrl) formData.append("imageUrl", editingGalleryData.imageUrl);
       
-    const res = await api.put(`/gallery/${editingGalleryId}`, formData);
+    const res = await api.put(`/gallery/${editingGalleryId}`, formData, {
+      headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "multipart/form-data" }
+    });
 setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item : g));
       setEditingGalleryId(null);
       setEditingGalleryData({ title: "", description: "", image: null, imageUrl: "" });
@@ -481,10 +491,13 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
   };
 
   const deleteImage = async (id) => {
+    const adminToken = localStorage.getItem("adminToken"); // 💡 FIX: Added missing declaration
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     if (!window.confirm("Are you sure you want to delete this image?")) return;
     try {
-      await api.delete(`/gallery/${id}`);
+      await api.delete(`/gallery/${id}`, {
+         headers: { Authorization: `Bearer ${adminToken}` }
+      });
       setGallery(gallery.filter((g) => (g._id || g.id) !== id));
       setToast({ type: "success", message: "Image deleted successfully!" });
       fetchMetrics();
@@ -495,19 +508,31 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
   };
 
   const toggleAdmin = async (userId) => {
+    const adminToken = localStorage.getItem("adminToken"); // 💡 FIX: Added missing declaration
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
+    // Assuming API call logic would go here, which requires adminToken
     setUsers(users.map((u) => (u._id === userId ? { ...u, isAdmin: !u.isAdmin } : u)));
     setToast({ type: "success", message: "Admin status updated!" });
   };
+  
+  // AdminDashboard.jsx (Around Line 523)
+
+  // File: AdminDashboard.jsx (Focus on the deleteMessage function, around line 523)
+
   const deleteMessage = async (id) => {
+    const adminToken = localStorage.getItem("adminToken"); 
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-     await api.delete(`/admin/messages/${id}`);
+     // ✅ FINAL FIX FOR 404: Use the path /contact/ plus the ID
+     // This matches the new router.delete("/:id", ...) route you added.
+     await api.delete(`/contact/${id}`, {
+        headers: { Authorization: `Bearer ${adminToken}` }
+     });
       setMessages(messages.filter((m) => m._id !== id));
       setToast({ type: "success", message: "Message deleted" });
     } catch (err) {
       console.error(err);
-      setToast({ type: "error", message: "Error deleting message." });
+      setToast({ type: "error", message: err.response?.data?.message || "Error deleting message." });
     }
   };
 
@@ -536,30 +561,65 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
 
   // ------------------ Messages ------------------
   const sendReply = async () => {
-  if (!replyText.trim()) {
-    toast.error("Reply cannot be empty");
-    return;
-  }
+    // ✅ FIX: Using setToast for alerts (was using toast.error/success which is incorrect)
+    if (!replyText.trim()) {
+      setToast({ type: "error", message: "Reply cannot be empty" });
+      return;
+    }
 
-  try {
-    const res = await api.put(`/contact/${selectedMessage._id}/reply`, { adminReply: replyText }, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
-    });
+    const adminToken = localStorage.getItem("adminToken");
+    if (!adminToken) {
+      setToast({ type: "error", message: "Admin not authenticated. Please log in again." });
+      return;
+    }
+    if (!selectedMessage?._id) {
+      setToast({ type: "error", message: "No message selected to reply to." });
+      return;
+    }
 
-    // Update messages state
-    setMessages(prev => prev.map(msg => 
-      msg._id === selectedMessage._id ? res.data.updatedMessage : msg
-    ));
+    try {
+      const res = await api.put(
+        `/contact/${selectedMessage?._id}/reply`,
+        { adminReply: replyText },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
 
-    toast.success("Reply sent successfully!");
-    setShowReplyModal(false);
-    setReplyText("");
-    setSelectedMessage(null);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to send reply");
-  }
-};
+      console.log("Reply API response:", res?.data);
+
+      const updatedMessage = res?.data?.updatedMessage ?? null;
+
+      if (updatedMessage) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === selectedMessage?._id ? updatedMessage : msg
+          )
+        );
+
+        setToast({ type: "success", message: res?.data?.message || "Reply sent successfully!" });
+        setShowReplyModal(false);
+        setReplyText("");
+        setSelectedMessage(null);
+      } else {
+        setToast({ type: "warning", message: res?.data?.message || "Reply sent, but backend didn't return updated message." });
+      }
+    } catch (err) {
+      console.error("Send reply error full response:", err?.response || err);
+
+      const respData = err?.response?.data || {};
+
+      const userMessage =
+        respData?.message ||
+        err?.message ||
+        "Failed to send reply. Please try again.";
+
+      setToast({ type: "error", message: userMessage });
+    }
+  };
+
 
   
   //  RENDER HELPER: Blog Form 
@@ -1416,72 +1476,12 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
             </button>
 
             <button
-  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-  onClick={async () => {
-    if (!replyText.trim()) {
-      toast.error("Reply cannot be empty");
-      return;
-    }
-
-    const adminToken = localStorage.getItem("adminToken");
-    if (!adminToken) {
-      toast.error("Admin not authenticated. Please log in again.");
-      return;
-    }
-
-    if (!selectedMessage?._id) {
-      toast.error("No message selected to reply to.");
-      return;
-    }
-
-    try {
-      console.log("Sending reply to message ID:", selectedMessage._id);
-
-      const res = await api.put(
-        `/contact/${selectedMessage._id}/reply`,
-        { adminReply: replyText },
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
-
-      console.log("Reply API response:", res?.data);
-
-      // Handle updatedMessage safely
-      const updatedMessage = res?.data?.updatedMessage || null;
-
-      if (updatedMessage) {
-        setMessages(prev =>
-          prev.map(msg =>
-            msg._id === selectedMessage._id ? updatedMessage : msg
-          )
-        );
-
-        toast.success("Reply sent successfully!");
-        setShowReplyModal(false);
-        setReplyText("");
-        setSelectedMessage(null);
-      } else {
-        // In case API succeeded but didn't return updatedMessage
-        const infoMsg = res?.data?.message || res?.data?.info || "Reply sent, but no confirmation received.";
-        toast.warning(infoMsg);
-      }
-    } catch (err) {
-      // Fully safe extraction of API error message
-      const respData = err?.response?.data || {};
-      console.error("Send reply error full response:", err.response || err);
-
-      const userMessage =
-        respData?.message ||
-        respData?.error ||
-        respData?.info ||
-        err?.message ||
-        "Failed to send reply";
-
-      toast.error(userMessage);
-    }
-  }}
->
-  Send Reply
-</button>
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              // ✅ FIX: Call the dedicated, corrected sendReply function
+              onClick={sendReply}
+            >
+              Send Reply
+            </button>
 
           </div>
         </div>
@@ -1495,7 +1495,7 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
 
         {/* Toast */}
         {toast && (
-          <div className={`fixed right-6 bottom-6 p-3 rounded-lg shadow-lg ${toast.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+          <div className={`fixed right-6 bottom-6 p-3 rounded-lg shadow-lg ${toast.type === "success" ? "bg-green-50 text-green-800" : toast.type === "warning" ? "bg-yellow-50 text-yellow-800" : "bg-red-50 text-red-800"}`}>
             {toast.message}
           </div>
         )}

@@ -394,6 +394,7 @@ function UserDashboard({ accessToken }) {
                           <span className="font-bold text-indigo-600">Your Query:</span> {msg.message}
                         </p>
 
+                        {/* ✅ This section correctly checks for and renders the adminReply! */}
                         {msg.replied && msg.adminReply && (
                           <div className={`mt-3 p-3 rounded-lg border-l-4 transition-colors duration-300
                             ${msg.status === 'unread' ? 'bg-yellow-100 border-yellow-500' : 'bg-blue-50 border-blue-400'}`}
