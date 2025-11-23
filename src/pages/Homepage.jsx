@@ -56,38 +56,42 @@ function Homepage({ onNavigate }) {
   ];
 
   return (
-    <div className="min-h-screen">
+    // FIX 1: Added overflow-x-hidden to prevent horizontal scroll caused by minor overflow
+    <div className="min-h-screen overflow-x-hidden"> 
       {/* HERO SECTION */}
       <div
-        className="relative overflow-hidden bg-cover bg-center min-h-[60vh] sm:min-h-[80vh]"
+        className="relative overflow-hidden bg-cover bg-center min-h-[70vh] md:min-h-[85vh] lg:min-h-screen" 
         style={{ backgroundImage: `url(${heroPicture})` }}
       >
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/40" /> 
+        {/* Decorative elements are fine, but ensure they don't block content */}
         <div className="absolute top-6 right-4 w-48 h-48 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse hidden sm:block" />
         <div className="absolute bottom-6 left-4 w-44 h-44 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse hidden sm:block" />
 
         <div
-          // 💡 FIX APPLIED: w-full ensures full width on mobile, 
-          // while xl:max-w-7xl limits width only on large screens.
-          className="relative w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 md:py-32 text-center text-white"
+          // FIX 2: Explicitly ensure the inner content container uses responsive padding
+          className="relative w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40 text-center text-white" 
           data-aos="fade-up"
         >
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg mb-6 border border-blue-200">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg mb-6 border border-blue-200">
             <Sparkles className="w-4 h-4 text-blue-600" />
             <span className="text-blue-700 font-medium text-xs sm:text-sm">
               Empowering Tech Leaders Since 2020
             </span>
           </div>
 
+          {/* Heading: Ensure smooth font scaling */}
           <h1
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6 font-extrabold drop-shadow-lg"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl mb-4 sm:mb-6 font-extrabold drop-shadow-2xl"
             data-aos="zoom-in"
           >
             Welcome to <span className="text-blue-400">BITSA</span>
           </h1>
 
+          {/* Subtext: Use smaller size on mobile and scale up */}
           <p
-            className="text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto text-blue-100 font-semibold"
+            className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 sm:mb-12 max-w-3xl mx-auto text-blue-100 font-semibold drop-shadow-xl"
             data-aos="fade-up"
             data-aos-delay="200"
           >
@@ -96,21 +100,22 @@ function Homepage({ onNavigate }) {
             collaboration, and excellence.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+          {/* CTA Buttons: Full width on mobile (w-full), side-by-side on larger screens (sm:flex-row) */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-sm sm:max-w-none mx-auto">
             <button
               type="button"
               onClick={() => navigate("/register")}
               aria-label="Join BITSA"
-              className="w-full sm:w-auto bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg flex items-center justify-center gap-2 transition-transform transform hover:scale-105 hover:shadow-blue-500/40"
+              className="w-full sm:w-auto bg-blue-600 text-white px-8 py-3.5 rounded-full font-bold text-base md:text-lg shadow-xl flex items-center justify-center gap-2 transition-transform transform hover:scale-105 hover:shadow-blue-500/60"
             >
-              Join BITSA Today <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              Join BITSA Today <ArrowRight className="w-5 h-5" />
             </button>
 
             <button
               type="button"
               onClick={() => navigate("/events")}
               aria-label="Explore events"
-              className="w-full sm:w-auto bg-white/80 backdrop-blur-sm border-2 border-blue-300 text-blue-700 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-blue-50"
+              className="w-full sm:w-auto bg-white/90 backdrop-blur-sm border-2 border-blue-300 text-blue-700 px-8 py-3.5 rounded-full font-bold text-base md:text-lg transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-white"
             >
               Explore Events
             </button>
@@ -119,35 +124,37 @@ function Homepage({ onNavigate }) {
       </div>
 
       {/* FEATURES SECTION */}
-      <div className="max-w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 bg-white">
-        <div className="text-center mb-8 sm:mb-12" data-aos="fade-up">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl mb-3 text-gray-900 font-extrabold">
+      <div className="max-w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 bg-white">
+        <div className="text-center mb-10 md:mb-16" data-aos="fade-up">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-3 text-gray-900 font-extrabold">
             Why Join <span className="text-blue-600">BITSA?</span>
           </h2>
-          <p className="text-base sm:text-lg font-bold text-blue-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg font-bold text-blue-600 max-w-3xl mx-auto">
             Discover the benefits of being part of our vibrant IT student
             community.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {features.map((feature, index) => (
             <div
               key={index}
               data-aos="zoom-in"
               data-aos-delay={index * 150}
-              className="group relative overflow-hidden bg-blue-50 border border-blue-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6 max-w-md mx-auto sm:mx-0"
+              className="group relative overflow-hidden bg-white border border-blue-200 rounded-3xl shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all duration-500 p-6 md:p-8"
             >
               <div className="relative">
-                <div className="flex justify-center mb-4 sm:mb-6">
-                  <div className="p-3 sm:p-4 bg-blue-200 rounded-2xl group-hover:bg-blue-100 transition-colors duration-300">
-                    {feature.icon}
+                <div className="flex justify-center mb-4 md:mb-6">
+                  <div className="p-4 md:p-5 bg-blue-100 rounded-2xl group-hover:bg-blue-600 transition-colors duration-300">
+                    <span className="text-blue-700 group-hover:text-white transition-colors duration-300">
+                      {feature.icon}
+                    </span>
                   </div>
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-center text-gray-900 mb-2">
+                <h3 className="text-xl md:text-2xl font-bold text-center text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-center font-medium text-sm sm:text-base">
+                <p className="text-gray-600 text-center text-sm md:text-base">
                   {feature.description}
                 </p>
               </div>
@@ -157,34 +164,34 @@ function Homepage({ onNavigate }) {
       </div>
 
       {/* ABOUT SECTION */}
-      <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-100 py-12 sm:py-16">
-        <div className="max-w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
+      <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-100 py-16 md:py-24">
+        <div className="max-w-full xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div data-aos="fade-right">
-            <div className="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm mb-4">
+            <div className="inline-block bg-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
               About Us
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl mb-4 text-gray-900 font-bold">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl mb-4 text-gray-900 font-bold">
               Building the Future of Technology
             </h2>
-            <p className="text-sm sm:text-base text-gray-700 mb-3 font-semibold">
+            <p className="text-base sm:text-lg text-gray-700 mb-4 font-semibold">
               BITSA is a dynamic organization dedicated to fostering
               collaboration, innovation, and professional development among IT
               students.
             </p>
-            <p className="text-sm sm:text-base text-gray-700 mb-5 font-semibold">
+            <p className="text-sm sm:text-base text-gray-700 mb-6 font-semibold">
               We organize hackathons, workshops, networking events, and provide
               a platform for students to connect, learn, and grow in the
               ever-evolving tech industry.
             </p>
-            <ul className="space-y-2 mb-6 font-semibold">
+            <ul className="space-y-3 mb-8 font-semibold">
               {[
                 "Industry-led Workshops",
                 "Networking Opportunities",
                 "Career Guidance",
                 "Tech Competitions",
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-700">
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shrink-0 animate-pulse">
+                <li key={i} className="flex items-start gap-3 text-gray-700">
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shrink-0 animate-pulse mt-0.5">
                     <svg
                       className="w-3 h-3 text-white"
                       fill="none"
@@ -199,25 +206,24 @@ function Homepage({ onNavigate }) {
                       />
                     </svg>
                   </div>
-                  <span className="text-sm sm:text-base">{item}</span>
+                  <span className="text-base sm:text-lg">{item}</span>
                 </li>
               ))}
             </ul>
             <button
               type="button"
               onClick={() => navigate("/contact")}
-              className="w-full sm:w-auto bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-blue-700 transition-all shadow-md flex items-center gap-2 font-semibold transform hover:scale-105"
+              className="w-full md:w-auto bg-blue-600 text-white px-8 py-3.5 rounded-full hover:bg-blue-700 transition-all shadow-md flex items-center justify-center gap-2 font-semibold text-base md:text-lg transform hover:scale-105"
             >
-              Get in Touch <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              Get in Touch <ArrowRight className="w-5 h-5" />
             </button>
           </div>
 
-          {/* About Image */}
-          <div className="relative" data-aos="fade-left">
+          <div className="relative order-first md:order-last" data-aos="fade-left">
             <img
               src="https://images.unsplash.com/photo-1638029202288-451a89e0d55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2RpbmclMjBoYWNrYXRob258ZW58MXx8fHwxNzYyMjUxOTA4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
               alt="Coding Hackathon"
-              className="rounded-3xl shadow-2xl object-cover w-full h-48 sm:h-64 md:h-80 lg:h-[420px] border-4 border-white transition-transform duration-700 hover:scale-105"
+              className="rounded-3xl shadow-2xl object-cover w-full h-64 sm:h-80 lg:h-[420px] border-4 border-white transition-transform duration-700 hover:scale-[1.02]"
             />
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-blue-900/10 to-transparent pointer-events-none"></div>
           </div>
@@ -225,21 +231,21 @@ function Homepage({ onNavigate }) {
       </div>
 
       {/* CALL TO ACTION SECTION */}
-      <div className="bg-blue-700 py-12 sm:py-16 text-center text-white">
-        <div className="w-full xl:max-w-4xl mx-auto px-4" data-aos="fade-up">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4 sm:mb-6">
+      <div className="bg-blue-700 py-16 md:py-24 text-center text-white">
+        <div className="w-full xl:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" data-aos="fade-up">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 md:mb-6">
             Ready to Be Part of Something Bigger?
           </h2>
-          <p className="text-sm sm:text-base md:text-lg mb-6 font-semibold text-blue-100">
+          <p className="text-base sm:text-lg md:text-xl mb-8 font-semibold text-blue-100 max-w-3xl mx-auto">
             Join BITSA today and take the first step toward becoming a leader in
             the tech community.
           </p>
           <button
             type="button"
             onClick={() => navigate("/register")}
-            className="w-full sm:w-auto bg-white text-blue-700 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-blue-100 transition-all shadow-md flex items-center gap-2 mx-auto transform hover:scale-105"
+            className="w-full sm:w-auto bg-white text-blue-700 px-10 py-4 rounded-full font-bold text-lg md:text-xl hover:bg-blue-100 transition-all shadow-xl flex items-center justify-center gap-3 mx-auto transform hover:scale-105"
           >
-            Join Now <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            Join Now <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
       </div>
