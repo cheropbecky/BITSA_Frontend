@@ -18,35 +18,35 @@ function Contact() {
       role: "Chairperson",
       email: "Chamba@gmail.com",
       phone: "0708898899",
-      img: "https://randomuser.me/api/portraits/men/32.jpg",
+      img: "https://media.istockphoto.com/id/2189564857/photo/studio-portrait-of-a-serious-young-man-of-latin-american-ethnicity-in-a-brown-sweater.webp?a=1&b=1&s=612x612&w=0&k=20&c=JjPGCUn4GWP25o1pHxXHIIS9hRckL2i2LZZmQrWEfcg=",
     },
     {
       name: "Gloria Jebet",
       role: "Vice President",
       email: "Gloria320@gmail.com",
       phone: "0725486687",
-      img: "https://randomuser.me/api/portraits/women/44.jpg",
+      img: "https://media.istockphoto.com/id/2234561423/photo/headshot-of-happy-young-businesswoman.webp?a=1&b=1&s=612x612&w=0&k=20&c=rhtXzpRCDcBrf3i1nDkYAZ2TTqH_5oAPxS4DHhH4mrY=",
     },
     {
       name: "Sharon Gaithi",
       role: "Secretary",
       email: "gaithisahron@gmail.com",
       phone: "0798863568",
-      img: "https://randomuser.me/api/portraits/women/45.jpg",
+      img: "https://media.istockphoto.com/id/2184496962/photo/happy-young-african-american-business-woman-in-suit-headshot-portrait.webp?a=1&b=1&s=612x612&w=0&k=20&c=47SX-lwYHbXCto8Ytcyw3qHRG7kdsKrWnhUv_7YMhrI=",
     },
     {
       name: "Maina Davies",
       role: "Treasurer",
       email: "mainadavies@gmail.com",
       phone: "0725486687",
-      img: "https://randomuser.me/api/portraits/men/47.jpg",
+      img: "https://media.istockphoto.com/id/1372641621/photo/portrait-of-a-businessman-on-gray-background.webp?a=1&b=1&s=612x612&w=0&k=20&c=-HxQAewNDqw6gAiefGNsq0jcnPLMQDmzoxg1B8PSR0g=",
     },
     {
       name: "Allan Cheruiyot",
       role: "Public Relation Officer",
       email: "allanpr@gmail.com",
       phone: "0725486687",
-      img: "https://randomuser.me/api/portraits/men/52.jpg",
+      img: "https://media.istockphoto.com/id/1201144328/photo/smiling-black-man-in-suit-posing-on-studio-background.webp?a=1&b=1&s=612x612&w=0&k=20&c=wl01WIR0aTR8-ODmVHzIyifibnv3nesP-abU5kN5kR0=",
     },
   ];
 
@@ -93,17 +93,16 @@ function Contact() {
           initial="hidden"
           whileInView="visible"
         >
-          <h1 className="text-5xl md:text-6xl mb-4 text-white font-bold">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl mb-4 text-white font-bold">
             Contact <span className="text-blue-400">BITSA</span>
           </h1>
-          <p className="text-xl font-bold text-gray-200 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl font-bold text-gray-200 max-w-2xl mx-auto">
             Have questions? We're here to help and answer any questions you might have.
           </p>
         </motion.div>
 
         {/* Contact Form & Info */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 mb-16">
-
           {/* Contact Form */}
           <motion.div
             className="lg:col-span-2"
@@ -111,67 +110,67 @@ function Contact() {
             initial="hidden"
             whileInView="visible"
           >
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-lg hover:shadow-2xl transition">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white">
                   <MessageSquare className="w-6 h-6" />
                 </div>
-                <h2 className="text-3xl font-semibold text-gray-900">Send us a Message</h2>
+                <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">Send us a Message</h2>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block font-bold text-gray-800 mb-2">Your Name</label>
+                    <label className="block font-bold text-gray-800 mb-2 text-sm sm:text-base">Your Name</label>
                     <input
                       type="text"
                       placeholder="Enter your name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full h-12 border border-gray-400 rounded-lg px-4 focus:ring-2 focus:ring-blue-500"
+                      className="w-full h-10 sm:h-12 border border-gray-400 rounded-lg px-3 sm:px-4 focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-gray-800 mb-2">Email Address</label>
+                    <label className="block font-bold text-gray-800 mb-2 text-sm sm:text-base">Email Address</label>
                     <input
                       type="email"
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full h-12 border border-gray-400 rounded-lg px-4 focus:ring-2 focus:ring-blue-500"
+                      className="w-full h-10 sm:h-12 border border-gray-400 rounded-lg px-3 sm:px-4 focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-800 mb-2">Subject</label>
+                  <label className="block font-bold text-gray-800 mb-2 text-sm sm:text-base">Subject</label>
                   <input
                     type="text"
                     placeholder="What is this regarding?"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full h-12 border border-gray-400 rounded-lg px-4 focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 sm:h-12 border border-gray-400 rounded-lg px-3 sm:px-4 focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-gray-800 mb-2">Message</label>
+                  <label className="block font-bold text-gray-800 mb-2 text-sm sm:text-base">Message</label>
                   <textarea
                     placeholder="Your message here..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full min-h-[120px] border border-gray-400 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                    className="w-full min-h-[100px] sm:min-h-[120px] border border-gray-400 rounded-lg px-3 sm:px-4 py-2 focus:ring-2 focus:ring-blue-500"
                     required
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full h-12 bg-blue-500 text-white rounded-lg hover:scale-105 transition-all flex items-center justify-center gap-2"
+                  className="w-full h-10 sm:h-12 bg-blue-500 text-white rounded-lg hover:scale-105 transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <Send className="w-4 h-4" />
                   Send Message
@@ -186,42 +185,42 @@ function Contact() {
             initial="hidden"
             whileInView="visible"
           >
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-lg space-y-6">
-              <div className="flex items-start gap-3">
-                <Mail className="w-6 h-6 text-blue-500" />
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-6 shadow-lg space-y-4 sm:space-y-6">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 <div>
-                  <p className="font-semibold text-gray-900">Email</p>
-                  <a href="mailto:bitsaclub@ueab.ac.ke" className="text-blue-500 hover:underline">
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">Email</p>
+                  <a href="mailto:bitsaclub@ueab.ac.ke" className="text-blue-500 hover:underline text-sm sm:text-base">
                     bitsaclub@ueab.ac.ke
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <Phone className="w-6 h-6 text-blue-500" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 <div>
-                  <p className="font-semibold text-gray-900">Phone</p>
-                  <a href="tel:+254708898899" className="text-blue-500 hover:underline">
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">Phone</p>
+                  <a href="tel:+254708898899" className="text-blue-500 hover:underline text-sm sm:text-base">
                     0708898899
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <MapPin className="w-6 h-6 text-blue-500" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 <div>
-                  <p className="font-semibold text-gray-900">Location</p>
-                  <p className="text-gray-700">Bitsa Lab, University Campus</p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">Location</p>
+                  <p className="text-gray-700 text-sm sm:text-base">Bitsa Lab, University Campus</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <Clock className="w-6 h-6 text-blue-500" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 <div>
-                  <p className="font-semibold text-gray-900">Office Hours</p>
-                  <p className="text-gray-700">Mon–Fri: 9:00 AM – 5:00 PM</p>
-                  <p className="text-gray-700">Saturday: Closed</p>
-                  <p className="text-gray-700">Sunday: 10:00 AM – 2:00 PM</p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">Office Hours</p>
+                  <p className="text-gray-700 text-sm sm:text-base">Mon–Fri: 9:00 AM – 5:00 PM</p>
+                  <p className="text-gray-700 text-sm sm:text-base">Saturday: Closed</p>
+                  <p className="text-gray-700 text-sm sm:text-base">Sunday: 10:00 AM – 2:00 PM</p>
                 </div>
               </div>
             </div>
@@ -229,16 +228,16 @@ function Contact() {
         </div>
 
         {/* Leadership Section */}
-        <div className="max-w-7xl mx-auto px-6 mb-20">
-          <h2 className="text-4xl font-bold text-center mb-10 text-white">
+        <div className="max-w-7xl mx-auto px-6 mb-16 sm:mb-20">
+          <h2 className="text-3xl sm:text-4xl md:text-4xl font-bold text-center mb-6 sm:mb-10 text-white">
             Meet Our <span className="text-blue-400">Leadership</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {contacts.map((contact, index) => (
               <motion.div
                 key={index}
-                className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="bg-white/80 backdrop-blur-md p-4 sm:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all"
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -247,23 +246,23 @@ function Contact() {
                   <img
                     src={contact.img}
                     alt={contact.name}
-                    className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-300 shadow-md"
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover ring-4 ring-blue-300 shadow-md"
                   />
                 </div>
 
                 <div className="text-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900">{contact.name}</h3>
-                  <p className="text-blue-500 font-medium">{contact.role}</p>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{contact.name}</h3>
+                  <p className="text-blue-500 font-medium text-sm sm:text-base">{contact.role}</p>
                 </div>
 
-                <p className="text-gray-700 text-center flex items-center justify-center gap-1">
+                <p className="text-gray-700 text-center flex items-center justify-center gap-1 text-sm sm:text-base">
                   <Mail className="w-4 h-4 text-blue-500" />
                   <a href={`mailto:${contact.email}`} className="hover:underline text-blue-500">
                     {contact.email}
                   </a>
                 </p>
 
-                <p className="text-gray-700 text-center mt-2 flex items-center justify-center gap-1">
+                <p className="text-gray-700 text-center mt-2 flex items-center justify-center gap-1 text-sm sm:text-base">
                   <Phone className="w-4 h-4 text-blue-500" />
                   <a href={`tel:${contact.phone}`} className="hover:underline text-blue-500">
                     {contact.phone}
@@ -276,16 +275,16 @@ function Contact() {
 
         {/* Google Map */}
         <motion.div
-          className="max-w-7xl mx-auto px-6 mb-20"
+          className="max-w-7xl mx-auto px-6 mb-16 sm:mb-20"
           variants={fadeInUp}
           initial="hidden"
           whileInView="visible"
         >
-          <h2 className="text-4xl font-bold text-center mb-8 text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-4xl font-bold text-center mb-6 sm:mb-8 text-white">
             Find Us on <span className="text-blue-400">Google Maps</span>
           </h2>
 
-          <div className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-blue-200">
+          <div className="w-full h-[300px] sm:h-[400px] rounded-2xl overflow-hidden shadow-lg border border-blue-200">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d31918.220353151002!2d35.071590372685755!3d0.25903879516635064!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sUniversity%20Of%20Eastern%20Africa%20Baraton%20library!5e0!3m2!1sen!2ske!4v1762370559888!5m2!1sen!2ske"
               width="100%"

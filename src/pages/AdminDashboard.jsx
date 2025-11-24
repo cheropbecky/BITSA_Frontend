@@ -265,7 +265,7 @@ function AdminDashboard() {
   const updateBlog = async (e) => {
   e.preventDefault();
 
-  const adminToken = localStorage.getItem("adminToken"); // ✅ FIX
+  const adminToken = localStorage.getItem("adminToken");
 
   if (!adminToken)
     return setToast({ type: "error", message: "Admin not logged in!" });
@@ -523,8 +523,7 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
     const adminToken = localStorage.getItem("adminToken"); 
     if (!adminToken) return setToast({ type: "error", message: "Admin not logged in!" });
     try {
-     // ✅ FINAL FIX FOR 404: Use the path /contact/ plus the ID
-     // This matches the new router.delete("/:id", ...) route you added.
+     
      await api.delete(`/contact/${id}`, {
         headers: { Authorization: `Bearer ${adminToken}` }
      });
@@ -538,7 +537,7 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
 
   const Tabs = () => (
     <div className="flex gap-2 mb-6 flex-wrap">
-      {["dashboard", "blogs", "events", "gallery", "users", "messages", "registrations"].map((t) => (
+      {["dashboard"].map((t) => (
         <button
           key={t}
           onClick={() => {
@@ -559,9 +558,7 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
     </div>
   );
 
-  // ------------------ Messages ------------------
   const sendReply = async () => {
-    // ✅ FIX: Using setToast for alerts (was using toast.error/success which is incorrect)
     if (!replyText.trim()) {
       setToast({ type: "error", message: "Reply cannot be empty" });
       return;
@@ -703,7 +700,7 @@ setGallery(gallery.map(g => (g._id || g.id) === editingGalleryId ? res.data.item
 
       <div className="relative z-10">
         <div className="min-h-[20vh] flex items-center justify-center">
-          <h1 className="text-7xl md:text-6xl font-bold text-white text-center">Admin Dashboard</h1>
+          <h1 className="text-4xl md:text-6xl font-bold text-white text-center">Admin Dashboard</h1>
         </div>
 
         <main className="max-w-7xl mx-auto p-6">
